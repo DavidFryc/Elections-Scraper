@@ -8,27 +8,21 @@ discord: David F.#2019
 import requests
 import bs4
 import sys
-#from pprint import pprint
 import os
-import re
-import pprint
+import download_data
+import csv
 
 os.system('cls')
 
 print(sys.argv)
 
-#if len(sys.argv) != 3:
-#    print("Zadej tri argumenty")
-
 # DEFINE VARIABLES
 cities_dict = {}
 cities_list = []
 urls_list = []
-
 clean_urls1 = []
 cleaning1 = []
 cleaning2 = []
-
 clean_urls3 = []
 cleaning3 = []
 cleaning4 = []
@@ -36,10 +30,24 @@ cleaning5 = []
 
 responses = []
 
+
+#csv_file = r"C:\Users\David Fryc\OneDrive\Python\Projects\Election Scraper\Elections-Scraper\results.csv"
+
 url = "https://www.volby.cz/pls/ps2017nss/ps3?xjazyk=CZ"
 url_two = "https://www.volby.cz/pls/ps2017nss/"
 abroad = "https://www.volby.cz/pls/ps2017nss/ps36?xjazyk=CZ"
 brno_city = "https://www.volby.cz/pls/ps2017nss/ps34?xjazyk=CZ&xkraj=11&xobec=582786"
+
+if len(sys.argv) != 3:
+    print('''Sorry, three inputs are required.
+    1) "Filename".py
+    2) Name of selected city
+    3) "Name of output file ''')
+    quit()
+
+script_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+csv_file = os.path.join(script_dir,sys.argv[2])
+
 
 def call_link(link, link_position, step, str1, str2, str3):
     cities_list.clear()
@@ -70,10 +78,10 @@ for urls_cleaning in urls_index2:
     clean_urls1.append(url_two+cleaning2[urls_cleaning])
 
 cities_dict = dict(zip(cities_list, clean_urls1))
-print (cities_list)
+#print (cities_list)
 
-cityname = input("Zadej jmeno obce: ")
-print(cities_dict[cityname])
+#cityname = input("Zadej jmeno obce: ")
+cityname = sys.argv[1]
 
 def clean_urls (str4):
     urls_index2 = range(0,int(len(urls_list)))
@@ -83,9 +91,7 @@ def clean_urls (str4):
         cleaning3.append(url_two+split_strings2[1].replace('amp;',''))
         if str(str4) in cleaning3[urls_cleaning2]:
             cleaning4.append(cleaning3[urls_cleaning2])
-        #clean_urls2 = set(cleaning4)
     return(cleaning4)
-    #return(clean_urls2)
 
 def resp ():
     urls_index3 = range(0, int(len(clean_urls2)))
@@ -93,48 +99,62 @@ def resp ():
         responses.append(requests.get(clean_urls2[resp]).status_code)
     return (responses)
 
-
 if cityname == "Zahraničí":
-    print ("Vyresit zahranici")
     call_link(abroad, 1, 1, "table", "table", "a")
-    #print (urls_list)
     clean_urls ("okrsek")
     clean_urls2 = list(set(cleaning4))
-    print(clean_urls2)
-    resp()
-    print(responses)
+    clean_urls2_index = range(0, int(len(clean_urls2)))
+    
+    berlin_sample = ("https://www.volby.cz/pls/ps2017nss/ps311?xjazyk=CZ&xkraj=2&xobec=999997&xsvetadil=EV&xzeme=276&xokrsek=12")
+    header = download_data.get_headers(berlin_sample, "Země", "Okrsek", 7, 137)
 
+    with open (csv_file, mode="w", newline="",encoding="utf-16") as file:
+        write_header = csv.writer(file, delimiter=";")
+        write_header.writerow(header)
+        
+        for data in clean_urls2_index: 
+            prepare_data = download_data.get_data(clean_urls2[data], 2, 3, 8, 138)
+            write_data = csv.writer(file, delimiter = ";")
+            write_data.writerows(prepare_data)
 
 elif cityname == "Brno-město":
-    print ("Vyresit Brno")
     call_link(brno_city, 0, 1, "div", "topline", "a")
-    #print (urls_list)
     clean_urls ("ps311?")
     clean_urls2 = list(set(cleaning4))
-    print(clean_urls2)
-    resp()
-    print(responses)
+    
+    clean_urls2_index = range(0, int(len(clean_urls2)))
 
+    krpole_sample = ("https://www.volby.cz/pls/ps2017nss/ps311?xjazyk=CZ&xkraj=11&xobec=582786&xmc=551007&xvyber=6202")
+    header = download_data.get_headers(krpole_sample, "Okres", "MČ / MO", 10, 140)
+    
+    with open (csv_file, mode="w", newline="",encoding="utf-16") as file:
+        write_header = csv.writer(file, delimiter=";")
+        write_header.writerow(header)
+        
+        for data in clean_urls2_index: 
+            prepare_data = download_data.get_data(clean_urls2[data], 3, 0, 11, 141)
+            write_data = csv.writer(file, delimiter = ";")
+            write_data.writerows(prepare_data)
 
 elif cityname in cities_dict:
-    print("to pujde")
     call_link(cities_dict[cityname], 0, 1, "div", "topline", "a")
-    #print (urls_list)
-    #print (clean_urls2)
     clean_urls ("ps311?")
-    #print(set(cleaning4))
     clean_urls2 = list(set(cleaning4))
-    print(clean_urls2)
-    resp()
-    print(responses)
+
+    clean_urls2_index = range(0, int(len(clean_urls2)))
+    stochov_sample = "https://www.volby.cz/pls/ps2017nss/ps311?xjazyk=CZ&xkraj=2&xobec=532860&xvyber=2103"
+    header = download_data.get_headers(stochov_sample, "Okres", "Obec", 10, 140)
     
+    with open (csv_file, mode="w", newline="",encoding="utf-16") as file:
+        write_header = csv.writer(file, delimiter=";")
+        write_header.writerow(header)
+        
+        for data in clean_urls2_index: 
+            prepare_data = download_data.get_data(clean_urls2[data], 2, 0, 11, 141)
+            write_data = csv.writer(file, delimiter = ";")
+            write_data.writerows(prepare_data)   
 else:
-    print("to nepujde")
-
-
-print ("-----------------------")
-
-
-#get_reply = requests.get(url)
-#print (get_reply.status_code)
-
+    print('Sorry, entered city was not found in the list: ')
+    print('-----------------------------------------------')
+    print(cities_list)
+    print('-----------------------------------------------')
