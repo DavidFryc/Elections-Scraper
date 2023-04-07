@@ -1,7 +1,6 @@
 import requests
 import bs4
 
-
 def get_headers (url, okres, obec, start, end):
     simple_header = [str(okres), "Kód obce", str(obec), "Voliči v seznamu", " Vydané obálky", "Volební účast v %", "Platné hlasy"]
     get_reply = requests.get(url)

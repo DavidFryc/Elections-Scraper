@@ -13,7 +13,6 @@ import download_data
 import csv
 
 os.system('cls')
-
 print(sys.argv)
 
 # DEFINE VARIABLES
@@ -23,12 +22,11 @@ urls_list = []
 clean_urls1 = []
 cleaning1 = []
 cleaning2 = []
-clean_urls3 = []
 cleaning3 = []
 cleaning4 = []
-cleaning5 = []
 responses = []      #FOR TESTING ONLY, NOT USED
 
+# NEEDED URLS
 url = 'https://www.volby.cz/pls/ps2017nss/ps3?xjazyk=CZ'
 url_two = 'https://www.volby.cz/pls/ps2017nss/'
 abroad = 'https://www.volby.cz/pls/ps2017nss/ps36?xjazyk=CZ'
